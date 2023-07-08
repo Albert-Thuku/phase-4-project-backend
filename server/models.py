@@ -5,7 +5,6 @@ db = SQLAlchemy()
 
 class Animal(db.Model, SerializerMixin):
     __tablename__ = 'animals'
-    serialize_rules = ('-centre.animals',)
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, unique=True, nullable=False)
@@ -13,7 +12,6 @@ class Animal(db.Model, SerializerMixin):
     description = db.Column(db.String, nullable=False)
     gender = db.Column(db.String, nullable=False)
     adopted = db.Column(db.Boolean, nullable=False)
-    adoptions = db.relationship('Adoption', back_populates='animal')
     centre_id = db.Column(db.Integer, db.ForeignKey('centres.id'))
     centre = db.relationship('Centre', back_populates='animals')
 
@@ -23,8 +21,8 @@ class Animal(db.Model, SerializerMixin):
 
 class Centre(db.Model, SerializerMixin):
     __tablename__ = 'centres'
-    serialize_rules = ('-animals.centre',)
-
+    serialize_rules = ('-animals.centre.animals',)
+    
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(length=50), unique=True)
     location = db.Column(db.String, unique=True)
@@ -51,18 +49,16 @@ class User(db.Model, SerializerMixin):
         return f'<User name {self.name} | email: {self.email}>'
 
 
-
 class Adoption(db.Model, SerializerMixin):
     __tablename__ = 'adoptions'
-    serialize_rules = ('-user',)
+    serialize_rules = ()
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     animal_id = db.Column(db.Integer, db.ForeignKey('animals.id'))
     user = db.relationship('User', back_populates='adoptions')
-    animal = db.relationship('Animal', back_populates='adoptions')
+    
 
     def __repr__(self):
         return f'<Adoption id: {self.id}>'
-
 
