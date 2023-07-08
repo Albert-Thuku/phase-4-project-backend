@@ -219,9 +219,9 @@ api.add_resource(UsersByID, '/users/<int:id>')
 class Adoptions(Resource):
 
     def get(self):
-        adoptions = [adoption.to_dict() for adoption in Adoptions.query.all()]
+        adoptions = [adoption.to_dict() for adoption in Adoption.query.all()]
 
-        if not adoptiona:
+        if not adoptions:
             response_body = {"Message" : "Loading adoptions data....."}
             response = make_response(jsonify(response_body), 404)
             return response

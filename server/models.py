@@ -13,7 +13,7 @@ class Animal(db.Model, SerializerMixin):
     description = db.Column(db.String, nullable=False)
     gender = db.Column(db.String, nullable=False)
     adopted = db.Column(db.Boolean, nullable=False)
-
+    adoptions = db.relationship('Adoption', back_populates='animal')
     centre_id = db.Column(db.Integer, db.ForeignKey('centres.id'))
     centre = db.relationship('Centre', back_populates='animals')
 
@@ -37,27 +37,32 @@ class Centre(db.Model, SerializerMixin):
 
 class User(db.Model, SerializerMixin):
     __tablename__ = 'users'
-    serialize_rules = ('-animals',)
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(length=30))
-    age = db.Column(db.Integer, db.CheckConstraint('age>18'))
-    email = db.Column(db.String, db.CheckConstraint('@ in email'))
+    age = db.Column(db.Integer, nullable=False)
+    email = db.Column(db.String, nullable=False, unique=True)
     password = db.Column(db.String(length=10))
     status = db.Column(db.String)
+
+    adoptions = db.relationship('Adoption', back_populates='user')
 
     def __repr__(self):
         return f'<User name {self.name} | email: {self.email}>'
 
 
+
 class Adoption(db.Model, SerializerMixin):
     __tablename__ = 'adoptions'
+    serialize_rules = ('-user',)
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     animal_id = db.Column(db.Integer, db.ForeignKey('animals.id'))
-    user = db.relationship('User', back_populates='animals')
-    animal = db.relationship('Animal', back_populates='animals')
+    user = db.relationship('User', back_populates='adoptions')
+    animal = db.relationship('Animal', back_populates='adoptions')
 
     def __repr__(self):
         return f'<Adoption id: {self.id}>'
+
+
